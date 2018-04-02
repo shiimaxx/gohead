@@ -52,14 +52,14 @@ func (c *CLI) Run(args []string) int {
 	flags.IntVar(&line, "lines", 10, "number of print line from head")
 	flags.IntVar(&line, "n", 10, "number of print line from head(Short)")
 
-	flag.BoolVar(&version, "version", false, "print version information")
+	flags.BoolVar(&version, "version", false, "print version information")
 
 	if err := flags.Parse(args[1:]); err != nil {
 		return ExitCodeError
 	}
 
 	if version {
-		fmt.Fprintf(c.errStream, "%s version %s", Name, Version)
+		fmt.Fprintf(c.errStream, "%s version %s\n", Name, Version)
 		return ExitCodeOK
 	}
 
