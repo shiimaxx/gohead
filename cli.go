@@ -22,7 +22,7 @@ func (c *CLI) Run(args []string) int {
 	flag.Parse()
 
 	if version {
-		fmt.Fprintf(c.errStream, "%s version %s", Name, Version)
+		fmt.Fprintf(c.errStream, "%s version %s\n", Name, Version)
 		return 0
 	}
 	return 0
