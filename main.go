@@ -1,16 +1,8 @@
 package main
 
-import (
-	"flag"
-	"fmt"
-)
-
-const version string = "0.1.0"
+import "os"
 
 func main() {
-	var line int
-	flag.IntVar(&line, "n", 10, "")
-	flag.Parse()
-	args := flag.Args()
-	fmt.Println(args)
+	cli := &CLI{outStream: os.Stdout, errStream: os.Stderr}
+	os.Exit(cli.Run(os.Args))
 }
