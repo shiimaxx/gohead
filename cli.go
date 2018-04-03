@@ -22,7 +22,6 @@ type CLI struct {
 }
 
 func readLine(line int, filepath string) (string, error) {
-
 	file, err := os.Open(filepath)
 	if err != nil {
 		return "", err
