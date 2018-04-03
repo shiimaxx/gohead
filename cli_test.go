@@ -172,3 +172,20 @@ ooooo
 		t.Errorf("expected %q to eq %q", outStream.String(), expected)
 	}
 }
+
+func TestRun_fileNotExists(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	args := strings.Split("gohead -n=15 dummy_file", " ")
+
+	status := cli.Run(args)
+	if status != ExitCodeError {
+		t.Errorf("expected %d to eq %d", status, ExitCodeError)
+	}
+
+	expected := "dummy_file: No such file or directory"
+	if !strings.EqualFold(errStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", errStream.String(), expected)
+	}
+}

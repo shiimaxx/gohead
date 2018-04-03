@@ -22,6 +22,7 @@ type CLI struct {
 }
 
 func readLine(line int, filepath string) (string, error) {
+
 	file, err := os.Open(filepath)
 	if err != nil {
 		return "", err
@@ -63,9 +64,14 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeOK
 	}
 
-	filepath := flags.Args()
+	filepath := flags.Args()[0]
 
-	l, err := readLine(line, filepath[0])
+	if _, err := os.Stat(filepath); os.IsNotExist(err) {
+		fmt.Fprintf(c.errStream, "%s: No such file or directory", filepath)
+		return ExitCodeError
+	}
+
+	l, err := readLine(line, filepath)
 	if err != nil {
 		fmt.Fprint(c.errStream, err)
 		return ExitCodeError
