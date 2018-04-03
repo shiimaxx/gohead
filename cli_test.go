@@ -231,7 +231,7 @@ func TestRun_emptyFile(t *testing.T) {
 	}
 }
 
-func TestRun_longLine(t *testing.T) {
+func TestRun_tokenToLong(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
 
