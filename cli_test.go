@@ -230,3 +230,29 @@ func TestRun_emptyFile(t *testing.T) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}
 }
+
+func TestRun_longLine(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	content := []byte(fmt.Sprintf(`aaaaa
+%s
+ccccc`, strings.Repeat("b", 65536)))
+	tempfile, _ := ioutil.TempFile("", "temp")
+	defer os.Remove(tempfile.Name())
+	if _, err := tempfile.Write(content); err != nil {
+		fmt.Print(err)
+	}
+
+	args := strings.Split(fmt.Sprintf("gohead %s", tempfile.Name()), " ")
+
+	status := cli.Run(args)
+	if status != ExitCodeError {
+		t.Errorf("expected %d to eq %d", status, ExitCodeError)
+	}
+
+	expected := "error on reading file: bufio.Scanner: token too long"
+	if !strings.EqualFold(errStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", errStream.String(), expected)
+	}
+}

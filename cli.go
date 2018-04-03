@@ -37,6 +37,9 @@ func readLine(line int, filepath string) (string, error) {
 			break
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return "", fmt.Errorf("error on reading file: %s", err)
+	}
 	return result, nil
 }
 
