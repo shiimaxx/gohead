@@ -177,7 +177,7 @@ func TestRun_fileNotExists(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
 
-	args := strings.Split("gohead -n=15 dummy_file", " ")
+	args := strings.Split("gohead dummy_file", " ")
 
 	status := cli.Run(args)
 	if status != ExitCodeError {
@@ -185,6 +185,23 @@ func TestRun_fileNotExists(t *testing.T) {
 	}
 
 	expected := "dummy_file: No such file or directory"
+	if !strings.EqualFold(errStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", errStream.String(), expected)
+	}
+}
+
+func TestRun_noArguments(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	args := []string{"gohead"}
+
+	status := cli.Run(args)
+	if status != ExitCodeError {
+		t.Errorf("expected %d to eq %d", status, ExitCodeError)
+	}
+
+	expected := "Missing filename"
 	if !strings.EqualFold(errStream.String(), expected) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}

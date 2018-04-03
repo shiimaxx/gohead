@@ -64,6 +64,11 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeOK
 	}
 
+	if len(flags.Args()) < 1 {
+		fmt.Fprint(c.errStream, "Missing filename")
+		return ExitCodeError
+	}
+
 	filepath := flags.Args()[0]
 
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {
