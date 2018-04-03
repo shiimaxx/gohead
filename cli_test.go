@@ -190,6 +190,26 @@ func TestRun_fileNotExists(t *testing.T) {
 	}
 }
 
+func TestRun_isDir(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	tempdir, _ := ioutil.TempDir("", "temp")
+	defer os.Remove(tempdir)
+
+	args := strings.Split(fmt.Sprintf("gohead %s", tempdir), " ")
+
+	status := cli.Run(args)
+	if status != ExitCodeError {
+		t.Errorf("expected %d to eq %d", status, ExitCodeError)
+	}
+
+	expected := fmt.Sprintf("%s: Is a directory", tempdir)
+	if !strings.EqualFold(errStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", errStream.String(), expected)
+	}
+}
+
 func TestRun_noArguments(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}

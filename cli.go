@@ -78,6 +78,16 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeError
 	}
 
+	finfo, err := os.Stat(filepath)
+	if os.IsNotExist(err) {
+		fmt.Fprintf(c.errStream, "%s: No such file or directory", filepath)
+		return ExitCodeError
+	}
+	if finfo.IsDir() {
+		fmt.Fprintf(c.errStream, "%s: Is a directory", filepath)
+		return ExitCodeError
+	}
+
 	l, err := readLine(line, filepath)
 	if err != nil {
 		fmt.Fprint(c.errStream, err)
