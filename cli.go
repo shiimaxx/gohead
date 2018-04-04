@@ -5,7 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"strings"
 )
 
 // Exit codes are int values that represent an exit code for a particular error.
@@ -22,7 +24,21 @@ type CLI struct {
 }
 
 func getBody(path string) (io.Reader, error) {
+	if strings.HasPrefix(path, "http") {
+		return getHTTP(path)
+	}
 	return getFile(path)
+}
+
+func getHTTP(url string) (io.Reader, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("%s: status code was not 200", res.Status)
+	}
+	return res.Body, nil
 }
 
 func getFile(filepath string) (io.Reader, error) {
