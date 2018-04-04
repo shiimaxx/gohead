@@ -21,15 +21,29 @@ type CLI struct {
 	outStream, errStream io.Writer
 }
 
-func readLine(line int, filepath string) (string, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
+func getBody(path string) (io.Reader, error) {
+	return getFile(path)
+}
 
+func getFile(filepath string) (io.Reader, error) {
+	if _, err := os.Stat(filepath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("%s: No such file or directory", filepath)
+	}
+
+	finfo, err := os.Stat(filepath)
+
+	if os.IsNotExist(err) {
+		return nil, fmt.Errorf("%s: No such file or directory", filepath)
+	}
+	if finfo.IsDir() {
+		return nil, fmt.Errorf("%s: Is a directory", filepath)
+	}
+	return os.Open(filepath)
+}
+
+func readLine(line int, body io.Reader) (string, error) {
 	var result string
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(body)
 	for i := 1; scanner.Scan(); i++ {
 		result += fmt.Sprintf("%s\n", scanner.Text())
 		if i >= line {
@@ -71,24 +85,13 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeError
 	}
 
-	filepath := flags.Args()[0]
-
-	if _, err := os.Stat(filepath); os.IsNotExist(err) {
-		fmt.Fprintf(c.errStream, "%s: No such file or directory", filepath)
+	body, err := getBody(flags.Args()[0])
+	if err != nil {
+		fmt.Fprint(c.errStream, err)
 		return ExitCodeError
 	}
 
-	finfo, err := os.Stat(filepath)
-	if os.IsNotExist(err) {
-		fmt.Fprintf(c.errStream, "%s: No such file or directory", filepath)
-		return ExitCodeError
-	}
-	if finfo.IsDir() {
-		fmt.Fprintf(c.errStream, "%s: Is a directory", filepath)
-		return ExitCodeError
-	}
-
-	l, err := readLine(line, filepath)
+	l, err := readLine(line, body)
 	if err != nil {
 		fmt.Fprint(c.errStream, err)
 		return ExitCodeError
