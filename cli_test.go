@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
@@ -272,6 +274,74 @@ ccccc`, strings.Repeat("b", 65536)))
 	}
 
 	expected := "error on reading file: bufio.Scanner: token too long"
+	if !strings.EqualFold(errStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", errStream.String(), expected)
+	}
+}
+
+func TestRun_http200(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, `aaaaa
+bbbbb
+ccccc
+ddddd
+eeeee
+fffff
+ggggg
+hhhhh
+iiiii
+jjjjj
+kkkkk
+lllll
+mmmmm
+nnnnn
+ooooo`)
+	}))
+	defer ts.Close()
+
+	args := strings.Split(fmt.Sprintf("gohead %s", ts.URL), " ")
+
+	status := cli.Run(args)
+	if status != ExitCodeOK {
+		t.Errorf("expected %d to eq %d", status, ExitCodeError)
+	}
+
+	expected := `aaaaa
+bbbbb
+ccccc
+ddddd
+eeeee
+fffff
+ggggg
+hhhhh
+iiiii
+jjjjj
+`
+	if !strings.EqualFold(outStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", outStream.String(), expected)
+	}
+}
+
+func TestRun_http500(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer ts.Close()
+
+	args := strings.Split(fmt.Sprintf("gohead %s", ts.URL), " ")
+
+	status := cli.Run(args)
+	if status != ExitCodeError {
+		t.Errorf("expected %d to eq %d", status, ExitCodeError)
+	}
+
+	expected := "500 Internal Server Error: status code was not 200"
 	if !strings.EqualFold(errStream.String(), expected) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}
