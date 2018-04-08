@@ -223,7 +223,7 @@ func TestRun_noArguments(t *testing.T) {
 		t.Errorf("expected %d to eq %d", status, ExitCodeError)
 	}
 
-	expected := "Missing filename"
+	expected := "Missing arguments"
 	if !strings.EqualFold(errStream.String(), expected) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}

@@ -97,7 +97,7 @@ func (c *CLI) Run(args []string) int {
 	}
 
 	if len(flags.Args()) < 1 {
-		fmt.Fprint(c.errStream, "Missing filename")
+		fmt.Fprint(c.errStream, "Missing arguments")
 		return ExitCodeError
 	}
 
