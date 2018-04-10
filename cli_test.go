@@ -346,3 +346,87 @@ func TestRun_http500(t *testing.T) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}
 }
+
+func TestRun_multiArguments(t *testing.T) {
+	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
+	cli := &CLI{outStream: outStream, errStream: errStream}
+
+	content1 := []byte(`aaaaa
+bbbbb
+ccccc
+ddddd
+eeeee
+fffff
+ggggg
+hhhhh
+iiiii
+jjjjj
+kkkkk
+lllll
+mmmmm
+nnnnn
+ooooo
+`)
+	content2 := []byte(`AAAAA
+BBBBB
+CCCCC
+DDDDD
+EEEEE
+FFFFF
+GGGGG
+HHHHH
+IIIII
+JJJJJ
+KKKKK
+LLLLL
+MMMMM
+NNNNN
+OOOOO
+`)
+
+	tempfile1, _ := ioutil.TempFile("", "temp1")
+	defer os.Remove(tempfile1.Name())
+	if _, err := tempfile1.Write(content1); err != nil {
+		fmt.Print(err)
+	}
+	tempfile2, _ := ioutil.TempFile("", "temp2")
+	defer os.Remove(tempfile2.Name())
+	if _, err := tempfile2.Write(content2); err != nil {
+		fmt.Print(err)
+	}
+
+	args := strings.Split(fmt.Sprintf("gohead %s %s", tempfile1.Name(), tempfile2.Name()), " ")
+
+	status := cli.Run(args)
+	if status != ExitCodeOK {
+		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
+	}
+
+	expected := `==> %s <==
+aaaaa
+bbbbb
+ccccc
+ddddd
+eeeee
+fffff
+ggggg
+hhhhh
+iiiii
+jjjjj
+
+==> %s <==
+AAAAA
+BBBBB
+CCCCC
+DDDDD
+EEEEE
+FFFFF
+GGGGG
+HHHHH
+IIIII
+JJJJJ
+`
+	if !strings.EqualFold(outStream.String(), expected) {
+		t.Errorf("expected %q to eq %q", outStream.String(), expected)
+	}
+}
