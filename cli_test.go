@@ -402,7 +402,7 @@ OOOOO
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
 
-	expected := `==> %s <==
+	expected := fmt.Sprintf(`==> %s <==
 aaaaa
 bbbbb
 ccccc
@@ -425,7 +425,7 @@ GGGGG
 HHHHH
 IIIII
 JJJJJ
-`
+`, tempfile1.Name(), tempfile2.Name())
 	if !strings.EqualFold(outStream.String(), expected) {
 		t.Errorf("expected %q to eq %q", outStream.String(), expected)
 	}
