@@ -101,17 +101,39 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeError
 	}
 
-	body, err := getBody(flags.Args()[0])
-	if err != nil {
-		fmt.Fprint(c.errStream, err)
-		return ExitCodeError
+	if len(flags.Args()) == 1 {
+		body, err := getBody(flags.Args()[0])
+		if err != nil {
+			fmt.Fprint(c.errStream, err)
+			return ExitCodeError
+		}
+
+		l, err := readLine(line, body)
+		if err != nil {
+			fmt.Fprint(c.errStream, err)
+			return ExitCodeError
+		}
+		fmt.Fprint(c.outStream, l)
+	} else {
+		for i, value := range flags.Args() {
+			body, err := getBody(value)
+			if err != nil {
+				fmt.Fprint(c.errStream, err)
+				return ExitCodeError
+			}
+
+			l, err := readLine(line, body)
+			if err != nil {
+				fmt.Fprint(c.errStream, err)
+				return ExitCodeError
+			}
+			if i > 0 {
+				fmt.Fprint(c.outStream, "\n")
+			}
+			fmt.Fprintf(c.outStream, "==> %s <==\n", value)
+			fmt.Fprint(c.outStream, l)
+		}
 	}
 
-	l, err := readLine(line, body)
-	if err != nil {
-		fmt.Fprint(c.errStream, err)
-		return ExitCodeError
-	}
-	fmt.Fprint(c.outStream, l)
 	return ExitCodeOK
 }
