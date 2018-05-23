@@ -20,6 +20,10 @@ Usage of gohead:
         print version information
 ```
 
+## Liceense
+
+[MIT](https://github.com/shiimaxx/gohead/blob/master/LICENSE)
+
 ## Author
 
 [shiimaxx](https://github.com/shiimaxx)
